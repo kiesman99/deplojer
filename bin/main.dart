@@ -17,39 +17,6 @@ void main(List<String> args) {
   if(args.isEmpty) runner.printUsage();
 }
 
-void blubb(List<String> args) async {
-  var results = parser.parse(args);
-
-  print(parser.usage);
-
-  // collecting args
-  //final bool help = results['help'];
-  final String platform = results['platform'];
-  final String new_platform = results['new_platform'];
-  final bool dotfiles = results['dotfiles'];
-  final bool scripts = results['scripts'];
-
-
-  var supportedPlatforms = await _getPlatforms();
-  
-  // check if platform is supported
-  if(!supportedPlatforms.contains(platform)){
-    stderr.writeln('Error: Platform $platform is not supported.');
-    exit(2);
-  }
-
-
-  print('This is your choosen platform: $platform');
-
-  if(!dotfiles){
-    _deploy_dotfiles(platform);
-  }
-
-  if(scripts){
-    _exec_scripts(platform);
-  }
-}
-
 String get execString {
   if (Platform.isMacOS) {
     return './$_tool_name';
