@@ -17,18 +17,6 @@ void main(List<String> args) {
   if(args.isEmpty) runner.printUsage();
 }
 
-String get execString {
-  if (Platform.isMacOS) {
-    return './$_tool_name';
-  } else if (Platform.isLinux) {
-    return './$_tool_name';
-  } else if (Platform.isWindows) {
-    return '$_tool_name.exe';
-  } else {
-    throw Exception('The platform which executes this script could not be determined');
-  }
-}
-
 Future<List<String>> _getPlatforms() async {
   var platforms = <String>[];
   var platformDir = Directory('platforms');
