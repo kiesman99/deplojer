@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:cli/extensions/FileSystemEntityExtension.dart';
+import 'package:yaml/yaml.dart';
 
 class RunCommand extends Command {
 
@@ -68,8 +70,34 @@ class RunCommand extends Command {
     if(argResults['dotfiles']) {
       stdout.writeln('Dotfiles will be linked...');
     }
+    var platform = argResults.rest.last;
     var homeDir = Directory(argResults['homePath']);
-    var platform = argResults['platform'];
+    var outDir = Directory('platforms/$platform/out');
+    outDir.createSync();
+    var dotfiles_master = Directory('platforms/master').listSync();
+    var dotfiles_platform = Directory('platforms/$platform/dotfiles').listSync();
+    var configFile = File('platforms/config.yaml');
+    // create file if not existent
+    configFile.createSync();
+    var config = loadYaml(configFile.readAsStringSync())['platforms'][platform];
+
+    // clear out folder
+    stdout.writeln('Clear out folder of $platform');
+    outDir.deleteSync(recursive: true);
+    outDir.createSync();
+
+    // setup general dotfiles
+    stdout.writeln('Link dotfiles from master...');
+    var excludedDotfiles = config['excluded_dotfiles'];
+    print(excludedDotfiles);
+
+    // link platform dotfiles
+    stdout.writeln('Link dotfiles from $platform');
+    dotfiles_platform.forEach((FileSystemEntity e) {
+      if(FileSystemEntity.isFileSync(e.absolute.path)){
+        (e as File).copySync('${outDir.absolute.path}/${e.name}');
+      }
+    });
   }
 
   void _execScripts() {
