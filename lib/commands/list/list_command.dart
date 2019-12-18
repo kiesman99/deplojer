@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:cli/extensions/FileSystemEntityExtension.dart';
 import 'package:args/command_runner.dart';
 
 class ListCommand extends Command {
@@ -12,10 +12,10 @@ class ListCommand extends Command {
 
   @override
   void run() {
-    _listPlatforms();
+    _printPlatforms();
   }
 
-  List<String> _listPlatforms() {
+  void _printPlatforms() {
   var platformDir = Directory('platforms');
 
   if(!platformDir.existsSync()) {
@@ -25,7 +25,7 @@ class ListCommand extends Command {
 
   var platforms = platformDir.listSync(recursive: false, followLinks: false).toList();
 
-  return platforms.map((e) => e.name).toList();
+  platforms.map((e) => e.name).toList().forEach((p) => stdout.writeln(p));
 }
 
 }
