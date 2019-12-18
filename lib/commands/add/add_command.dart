@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:path/path.dart';
 
 class AddCommand extends Command {
 
@@ -35,6 +36,18 @@ class AddCommand extends Command {
       Directory('platforms/$name/dotfiles').createSync(recursive: true);
       Directory('platforms/$name/scripts').createSync(recursive: true);
       print('Platform $name has been created');
+      _createConfFile();
+    }
+  }
+
+  void _createConfFile() {
+    const example_url = 'https://github.com/kiesman99/deplojer';
+    var dir = Directory('platforms');
+    var file = File('${dir.absolute.path}/config.yaml');
+    if(!file.existsSync()) {
+      print('Create file');
+      file.createSync(recursive: true);
+      file.writeAsStringSync('# $example_url');
     }
   }
 
