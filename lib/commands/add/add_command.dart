@@ -37,6 +37,7 @@ class AddCommand extends Command {
       Directory('platforms/$name/scripts').createSync(recursive: true);
       print('Platform $name has been created');
       _createConfFile();
+      _createMasterFolder();
     }
   }
 
@@ -49,6 +50,10 @@ class AddCommand extends Command {
       file.createSync(recursive: true);
       file.writeAsStringSync('# $example_url');
     }
+  }
+
+  void _createMasterFolder() {
+    var dir = Directory('platforms/master').createSync();
   }
 
 }
