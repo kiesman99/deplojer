@@ -33,8 +33,9 @@ class AddCommand extends Command {
     var platformDir = Directory('platform/$name');
 
     if(!platformDir.existsSync()){
-      Directory('platforms/$name/dotfiles').createSync(recursive: true);
+      Directory('platforms/$name/files').createSync(recursive: true);
       Directory('platforms/$name/scripts').createSync(recursive: true);
+      Directory('platforms/$name/gap_filler').createSync(recursive: true);
       print('Platform $name has been created');
       _createConfFile();
       _createMasterFolder();
@@ -53,7 +54,8 @@ class AddCommand extends Command {
   }
 
   void _createMasterFolder() {
-    var dir = Directory('platforms/master').createSync();
+    Directory('platforms/master/files').createSync(recursive: true);
+    Directory('platforms/master/scripts').createSync(recursive: true);
   }
 
 }
