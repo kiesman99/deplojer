@@ -11,7 +11,7 @@ class RunCommand extends Command {
 
   @override
   String get description =>
-      'Start deploying all your dotfiles and optionally scripts.';
+      'Start deploying all your files and optionally scripts.';
 
   @override
   String get name => 'run';
@@ -23,15 +23,15 @@ class RunCommand extends Command {
           negatable: false,
           defaultsTo: false,
           help: 'Enable script execution for the run.')
-      ..addFlag('dotfiles',
+      ..addFlag('files',
           negatable: true,
           defaultsTo: true,
-          help: 'Disable linking of dotfiles.')
+          help: 'Disable linking of files.')
       ..addOption('homePath',
           abbr: 'p',
           defaultsTo: env['HOME'],
           help:
-              'Define a custom directory to which the dotfiles will be linked.');
+              'Define a custom (absolute) directory to which the files will be linked.');
   }
 
   @override
@@ -68,8 +68,8 @@ class RunCommand extends Command {
     outDir.deleteSync(recursive: true);
     outDir.createSync();
 
-    if (argResults['dotfiles']) {
-      stdout.writeln('Dotfiles will be linked...');
+    if (argResults['files']) {
+      stdout.writeln('Files will be linked...');
     }
     var homeDir = Directory(argResults['homePath']);
     var configFile = File('platforms/config.yaml');
@@ -138,10 +138,10 @@ class RunCommand extends Command {
   /// This function will make a copy of each platform file
   /// into the [outDir]
   void _setup_platform_files(PlatformConfig configuration, Directory outDir) {
-    var dotfiles_platform =
+    var files_platform =
         Directory('platforms/$_platform/files').listSync();
     stdout.writeln('Link files from ${_platform}...');
-    dotfiles_platform.forEach((FileSystemEntity e) {
+    files_platform.forEach((FileSystemEntity e) {
       if (FileSystemEntity.isFileSync(e.absolute.path)) {
         if(e.myIsFile) (e as File).copySync('${outDir.absolute.path}/${e.name}');
       }

@@ -7,7 +7,7 @@ const _tool_name = 'deplojer';
 
 void main(List<String> args) {
 
-  var runner = CommandRunner(_tool_name, 'Easy deployment of all your dotfiles')
+  var runner = CommandRunner(_tool_name, 'Easy deployment of all your (dot)Files')
       ..addCommand(AddCommand())
       ..addCommand(RunCommand())
       ..addCommand(ListCommand());

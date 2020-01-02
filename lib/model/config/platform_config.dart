@@ -24,7 +24,7 @@ class PlatformConfig {
   PlatformConfig(this._map, this.platform_name){
     _setExcludedFiles();
     _setExcludedScripts();
-    _setExecutionOfMasterDotfiles();
+    _setExecutionOfMasterFiles();
     _setExecutionOfMasterScripts();
 
     // platform_name.printBox(prefix: 'PLATFORM: ');
@@ -55,7 +55,7 @@ class PlatformConfig {
   /// The nae of the files that should be excluded
   List<String> excluded_files = <String>[];
 
-  /// If master dotfiles should
+  /// If master files should
   /// be included in execution
   /// 
   /// default: true
@@ -102,7 +102,7 @@ class PlatformConfig {
     }
   }
 
-  void _setExecutionOfMasterDotfiles() {
+  void _setExecutionOfMasterFiles() {
     includeMasterFiles = _map['include_master_files'] ?? includeMasterFiles;
   }
 
