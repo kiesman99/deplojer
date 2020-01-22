@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
@@ -8,6 +9,8 @@ import 'package:cli/service/config_service.dart';
 class RunCommand extends Command {
   final env = Platform.environment;
   String _platform = '';
+
+  String _homeDir;
 
   @override
   String get description =>
@@ -46,6 +49,10 @@ class RunCommand extends Command {
       exit(1);
     } else {
       if (_isPlatformAvailable(argResults.rest.last)) {
+
+        // set variables given by args
+        _homeDir = argResults['homePath'];
+
         _checkSelectedPlatform();
         _linkFiles();
         _execScripts();
@@ -95,8 +102,12 @@ class RunCommand extends Command {
     // If a json file with information about previously linked
     // files is available, iterate through each file and remove
     // the link at the fiven destination
-    // TODO(jvietz): Implement deleting of old file links
-
+    var oldLinksFile = File('.tmp/oldLinks.json');
+    if(oldLinksFile.existsSync()) {
+      // old file exists, so we need to delete old links to clean up eventually removed files
+      var oldLinksJsonMap = jsonDecode(oldLinksFile.readAsStringSync());
+      oldLinksJsonMap.forEach((link) => _removeOldLink(link));
+    }
     // Save files that will be linked from the outfolder
     // into a json file to be able to clean the previous created 
     // links
@@ -175,5 +186,16 @@ class RunCommand extends Command {
   /// is available.
   bool _isPlatformAvailable(String platform) {
     return _availablePlatforms.contains(platform);
+  }
+
+  /// This function will remove the given link
+  void _removeOldLink(link) {
+    // if no path is given in [link]
+    // set [_homeDir] as Path
+    var fileDir = link['path'] ?? _homeDir;
+    var fileName = link['name'];
+
+    var oldLink = File('$fileDir/.$fileName');
+    if(oldLink.existsSync()) oldLink.deleteSync();
   }
 }
