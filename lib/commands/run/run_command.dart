@@ -110,7 +110,6 @@ class RunCommand extends Command {
     // Save files that will be linked from the outfolder
     // into a json file to be able to clean the previous created 
     // links
-    // TODO(vietz): Implement saving of files that should be linked
     if(oldLinksFile.existsSync()) oldLinksFile.deleteSync();
     oldLinksFile.createSync(recursive: true);
     
