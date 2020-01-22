@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:yaml/yaml.dart';
 
 /// A simple extension to print out the platform
@@ -26,6 +28,7 @@ class PlatformConfig {
     _setExcludedScripts();
     _setExecutionOfMasterFiles();
     _setExecutionOfMasterScripts();
+    _setCustomPathFiles();
 
     // platform_name.printBox(prefix: 'PLATFORM: ');
     // print('Master Files: $includeMasterFiles');
@@ -67,6 +70,10 @@ class PlatformConfig {
   /// default: true
   bool includeMasterScripts = true;
 
+  /// Here are all files listed, which should have
+  /// a custom path.
+  HashMap<String, String> customPath = HashMap();
+
   /// This function will filter the configuration for
   /// master files that should not be deployed by the specific
   /// platform
@@ -82,6 +89,20 @@ class PlatformConfig {
         });
       }
     }
+  }
+
+  void _setCustomPathFiles() {
+    YamlList custom_path = _map['custom_path'];
+    if(custom_path != null) {
+      custom_path.forEach((m) {
+
+        (m as YamlMap).forEach((key, value) {
+          customPath.putIfAbsent(key, () => value);
+        });
+      });
+    }
+
+    print(customPath);
   }
 
   /// This function will filter the configutaion for
