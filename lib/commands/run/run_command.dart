@@ -78,7 +78,6 @@ class RunCommand extends Command {
     if (argResults['files']) {
       stdout.writeln('Files will be linked...');
     }
-    var homeDir = Directory(argResults['homePath']);
     var configFile = File('platforms/config.yaml');
     // create file if not existent
     configFile.createSync();
@@ -112,11 +111,31 @@ class RunCommand extends Command {
     // into a json file to be able to clean the previous created 
     // links
     // TODO(vietz): Implement saving of files that should be linked
+    if(oldLinksFile.existsSync()) oldLinksFile.deleteSync();
+    oldLinksFile.createSync(recursive: true);
+    
+    var outDir = Directory('./platforms/$_platform/out');
+    var jsonList = <Map<String, String>>[]; 
+    outDir.listSync().forEach((item) {
+      if ((item as File).myIsFile) {
+        jsonList.add({
+          'name': item.name,
+          'path': _getPathFromFile(item.name)
+        });
+      }
+    });
+    var json = jsonEncode(jsonList);
+    oldLinksFile.writeAsStringSync(json.toString());
 
     // Link each file that is located in the platforms out-dir
     // everything should now be available from the json file that was
     // previsouly created/updated
     // TODO(jvietz): Implement actual linking of the files 
+  }
+
+  String _getPathFromFile(String name) {
+    var configuration = ConfigService().configuration(_platform);
+    return configuration.customPath[name] ?? _homeDir;
   }
 
   /// This function will merge the gap_filler into the given files
