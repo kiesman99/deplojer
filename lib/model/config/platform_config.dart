@@ -1,27 +1,11 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
 import 'package:yaml/yaml.dart';
-
-/// A simple extension to print out the platform
-extension S on String {
-  String replicate(int times) {
-    var tmp = '';
-    for(var i = 0; i < times; i++){
-      tmp += this;
-    }
-    return tmp;
-  }
-
-  void printBox({String prefix = ''}) {
-    print('-'.replicate(prefix.length + length + 4));
-    print('| $prefix$this |');
-    print('-'.replicate(prefix.length + length + 4));
-  }
-}
 
 /// This class will hold the platform configuration
 /// and all fields available for configuration.
-class PlatformConfig {
+class PlatformConfig extends Equatable{
 
   PlatformConfig(this._map, this.platform_name){
     _setExcludedFiles();
@@ -31,13 +15,6 @@ class PlatformConfig {
     _setCustomPathFiles();
 
     // platform_name.printBox(prefix: 'PLATFORM: ');
-    // print('Master Files: $includeMasterFiles');
-    // print('Master Scripts: $includeMasterScripts');
-    // print('---');
-    // print('Excluded Files: $excluded_files');
-    // print('Excluded Scripts: $excluded_scripts');
-    // print('---');
-    // print('---\n');
   }
 
   // returns a platformconfig, that is empty
@@ -83,9 +60,8 @@ class PlatformConfig {
       if(excluded['files'] != null){
         excluded['files'].forEach((val) {
           if(val is! YamlMap) {
-            excluded_scripts.add(val);
+            excluded_files.add(val);
           } 
-          // TODO(jvietz): Scrape for excluded folders
         });
       }
     }
@@ -102,7 +78,7 @@ class PlatformConfig {
       });
     }
 
-    print(customPath);
+    //print(customPath);
   }
 
   /// This function will filter the configutaion for
@@ -117,7 +93,6 @@ class PlatformConfig {
           if(val is! YamlMap) {
             excluded_scripts.add(val);
           } 
-          // TODO(jvietz): Scrape for excluded folders
         });
       }
     }
@@ -130,4 +105,7 @@ class PlatformConfig {
   void _setExecutionOfMasterScripts() {
     includeMasterScripts = _map['include_master_scripts'] ?? includeMasterScripts;
   }
+
+  @override
+  List<Object> get props => [_map, platform_name, excluded_files, excluded_scripts, includeMasterFiles, includeMasterScripts, customPath];
 }
