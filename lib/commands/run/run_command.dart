@@ -113,7 +113,7 @@ class RunCommand extends Command {
     if(oldLinksFile.existsSync()) oldLinksFile.deleteSync();
     oldLinksFile.createSync(recursive: true);
     
-    var outDir = Directory('./platforms/$_platform/out');
+    var outDir = Directory('platforms/$_platform/out');
     var jsonList = <Map<String, String>>[]; 
     outDir.listSync().forEach((item) {
       if ((item as File).myIsFile) {
@@ -130,11 +130,20 @@ class RunCommand extends Command {
     // everything should now be available from the json file that was
     // previsouly created/updated
     // TODO(jvietz): Implement actual linking of the files 
+    outDir.listSync().forEach((item) {
+      if(item.myIsFile) {
+        var path = _getPathFromFile(item.name);
+        var from = '${outDir.absolute.path}${item.name}';
+        var to = '$path${item.name}';
+        Link(to).createSync(from, recursive: true);
+        print('Creating link\nFrom:$from\nto:$to\n------\n\n');
+      }
+    });
   }
 
   String _getPathFromFile(String name) {
     var configuration = ConfigService().configuration(_platform);
-    return configuration.customPath[name] ?? _homeDir;
+    return Directory(configuration.customPath[name] ?? _homeDir).absolute.path;
   }
 
   /// This function will merge the gap_filler into the given files
