@@ -26,20 +26,20 @@ class PlatformConfig extends Equatable{
   final YamlMap _map;
 
   /// The name of the platform that is configured
-  String platform_name;
+  final String platform_name;
 
   /// The name of the scripts that should be
   /// excluded by this platform
-  List<String> excluded_scripts = <String>[];
+  final List<String> excluded_scripts = <String>[];
 
   /// The nae of the files that should be excluded
-  List<String> excluded_files = <String>[];
+  final List<String> excluded_files = <String>[];
 
   /// If master files should
   /// be included in execution
   /// 
   /// default: true
-  bool includeMasterFiles = true;
+  bool includeMasterFiles;
 
   /// If master scripts should
   /// be included in execution
@@ -49,7 +49,7 @@ class PlatformConfig extends Equatable{
 
   /// Here are all files listed, which should have
   /// a custom path.
-  HashMap<String, String> customPath = HashMap();
+  final HashMap<String, String> customPath = HashMap();
 
   /// This function will filter the configuration for
   /// master files that should not be deployed by the specific
