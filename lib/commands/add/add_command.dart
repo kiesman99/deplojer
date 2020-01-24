@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:cli/commands/add/add_service.dart';
 
-class AddCommand extends Command {
+class AddCommand extends Command<String> {
 
   @override
   String get description => 'Add a new platform.';
@@ -18,16 +18,16 @@ class AddCommand extends Command {
   final AddService _addService = AddService();
 
   @override
-  void run() {
+  String run() {
     if(argResults.rest.isEmpty){
-      printUsage();
+      return usage;
     }
-    else if(argResults.rest.isNotEmpty){
-      try{
-        argResults.rest.forEach((platform) => _addService.createNewPlatform(platform));
-      } catch(e){
-        exit(1);
-      }
+
+    try{
+      argResults.rest.forEach((platform) => _addService.createNewPlatform(platform));
+      return 'Platforms ${argResults.rest} has been created.';
+    } catch(e){
+      return 'Platforms could not be created.';
     }
   }
 

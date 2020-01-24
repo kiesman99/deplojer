@@ -3,7 +3,7 @@ import 'package:cli/extensions/FileSystemEntityExtension.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli/extensions/string_extension.dart';
 
-class ListCommand extends Command {
+class ListCommand extends Command<String> {
   @override
   String get description => 'List all available platforms.';
 
@@ -11,8 +11,9 @@ class ListCommand extends Command {
   String get name => 'list';
 
   @override
-  void run() {
-    stdout.write(_printPlatforms());
+  String run() {
+    // stdout.write(_printPlatforms());
+    return _printPlatforms();
   }
 
   String _printPlatforms() {

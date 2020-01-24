@@ -7,12 +7,12 @@ const _tool_name = 'deplojer';
 
 void main(List<String> args) {
 
-  var runner = CommandRunner(_tool_name, 'Easy deployment of all your (dot)Files')
+  var runner = CommandRunner<String>(_tool_name, 'Easy deployment of all your (dot)Files')
       ..addCommand(AddCommand())
       ..addCommand(RunCommand())
       ..addCommand(ListCommand());
 
   if(args.isEmpty) runner.printUsage();
 
-  runner.run(args);
+  runner.run(args).then(print);
 }

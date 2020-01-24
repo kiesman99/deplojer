@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:cli/extensions/FileSystemEntityExtension.dart';
+import 'package:cli/extensions/string_extension.dart';
 import 'package:cli/model/config/platform_config.dart';
 import 'package:cli/service/config_service.dart';
 
-class RunCommand extends Command {
+class RunCommand extends Command<String> {
   final env = Platform.environment;
   String _platform = '';
 
@@ -27,9 +28,7 @@ class RunCommand extends Command {
           defaultsTo: false,
           help: 'Enable script execution for the run.')
       ..addFlag('files',
-          negatable: true,
-          defaultsTo: true,
-          help: 'Disable linking of files.')
+          negatable: true, defaultsTo: true, help: 'Disable linking of files.')
       ..addOption('homePath',
           abbr: 'p',
           defaultsTo: env['HOME'],
@@ -38,29 +37,24 @@ class RunCommand extends Command {
   }
 
   @override
-  void run() {
+  String run() {
     _platform = argResults.rest.last;
     if (argResults.rest.isEmpty) {
-      printUsage();
+      return usage;
     } else if (argResults.rest.length > 1) {
-      stderr.writeln(
-          'Error: Please provide only one platform to run the script on.');
-      exit(1);
-    } else {
-      if (_isPlatformAvailable(argResults.rest.last)) {
-
-        // set variables given by args
-        _homeDir = argResults['homePath'];
-
-        _checkSelectedPlatform();
-        _linkFiles();
-        _execScripts();
-      } else {
-        stderr.writeln(
-            'Error: The platform ${argResults.rest.last} is not available.');
-        exit(2);
-      }
+      return 'Error: Please provide only one platform to run the script on.';
     }
+    if (_isPlatformAvailable(argResults.rest.last)) {
+      // set variables given by args
+      _homeDir = argResults['homePath'];
+
+      _checkSelectedPlatform();
+      _linkFiles();
+      _execScripts();
+
+      return 'Deploying finished'.toBox();
+    }
+    return 'Error: The platform ${argResults.rest.last} is not available.';
   }
 
   /// This function will check if the selected platform is available
@@ -101,25 +95,22 @@ class RunCommand extends Command {
     // files is available, iterate through each file and remove
     // the link at the fiven destination
     var oldLinksFile = File('.tmp/oldLinks.json');
-    if(oldLinksFile.existsSync()) {
+    if (oldLinksFile.existsSync()) {
       // old file exists, so we need to delete old links to clean up eventually removed files
       var oldLinksJsonMap = jsonDecode(oldLinksFile.readAsStringSync());
       oldLinksJsonMap.forEach((link) => _removeOldLink(link));
     }
     // Save files that will be linked from the outfolder
-    // into a json file to be able to clean the previous created 
+    // into a json file to be able to clean the previous created
     // links
-    if(oldLinksFile.existsSync()) oldLinksFile.deleteSync();
+    if (oldLinksFile.existsSync()) oldLinksFile.deleteSync();
     oldLinksFile.createSync(recursive: true);
-    
+
     var outDir = Directory('platforms/$_platform/out');
-    var jsonList = <Map<String, String>>[]; 
+    var jsonList = <Map<String, String>>[];
     outDir.listSync().forEach((item) {
       if ((item as File).myIsFile) {
-        jsonList.add({
-          'name': item.name,
-          'path': _getPathFromFile(item.name)
-        });
+        jsonList.add({'name': item.name, 'path': _getPathFromFile(item.name)});
       }
     });
     var json = jsonEncode(jsonList);
@@ -128,9 +119,9 @@ class RunCommand extends Command {
     // Link each file that is located in the platforms out-dir
     // everything should now be available from the json file that was
     // previsouly created/updated
-    // TODO(jvietz): Implement actual linking of the files 
+    // TODO(jvietz): Implement actual linking of the files
     outDir.listSync().forEach((item) {
-      if(item.myIsFile) {
+      if (item.myIsFile) {
         var path = _getPathFromFile(item.name);
         var from = '${outDir.absolute.path}${item.name}';
         var to = '$path${item.name}';
@@ -151,22 +142,25 @@ class RunCommand extends Command {
   void _setup_master_files(PlatformConfig config, Directory outDir) {
     // go through each file located in the master dir
     // create dir if not available
-    var masterFilesDir = Directory('platforms/master/files')..createSync(recursive: true);
+    var masterFilesDir = Directory('platforms/master/files')
+      ..createSync(recursive: true);
     var gap_filler_dir = Directory('platforms/$_platform/gap_filler');
     masterFilesDir.listSync().forEach((element) {
       // check if file is in excluded list
       // if not it should be included
-      if(!config.excluded_files.contains(element.toString())) {
-        
+      if (!config.excluded_files.contains(element.toString())) {
         // search for the files gap_filler folder
         // There are gap fillers for the requested element
-        if(Directory('${gap_filler_dir.absolute.path}/${element.name}').existsSync()){
+        if (Directory('${gap_filler_dir.absolute.path}/${element.name}')
+            .existsSync()) {
           // TODO(jvietz): Fill file with gap_fillers
         }
         // There are no gap_fillers for the requested element
         // Copy ready file into output dir
         else {
-          if(element.myIsFile) (element as File).copySync('${outDir.absolute.path}/${element.name}');
+          if (element.myIsFile)
+            (element as File)
+                .copySync('${outDir.absolute.path}/${element.name}');
         }
       }
     });
@@ -175,12 +169,12 @@ class RunCommand extends Command {
   /// This function will make a copy of each platform file
   /// into the [outDir]
   void _setup_platform_files(PlatformConfig configuration, Directory outDir) {
-    var files_platform =
-        Directory('platforms/$_platform/files').listSync();
+    var files_platform = Directory('platforms/$_platform/files').listSync();
     stdout.writeln('Link files from ${_platform}...');
     files_platform.forEach((FileSystemEntity e) {
       if (FileSystemEntity.isFileSync(e.absolute.path)) {
-        if(e.myIsFile) (e as File).copySync('${outDir.absolute.path}/${e.name}');
+        if (e.myIsFile)
+          (e as File).copySync('${outDir.absolute.path}/${e.name}');
       }
     });
   }
@@ -222,6 +216,6 @@ class RunCommand extends Command {
     var fileName = link['name'];
 
     var oldLink = File('$fileDir/.$fileName');
-    if(oldLink.existsSync()) oldLink.deleteSync();
+    if (oldLink.existsSync()) oldLink.deleteSync();
   }
 }

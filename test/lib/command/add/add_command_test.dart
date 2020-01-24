@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 void main() {
 
   Directory platformDir;
-  CommandRunner runner;
+  CommandRunner<String> runner;
 
   setUp(() {
     runner = CommandRunner('deplojer', 'A simple test')
