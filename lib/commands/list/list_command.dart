@@ -20,7 +20,6 @@ class ListCommand extends Command {
 
   if(!platformDir.existsSync()) {
     stdout.writeln('Error: No platforms are available.');
-    exit(0);
   }
 
   var platforms = platformDir.listSync(recursive: false, followLinks: false).toList();

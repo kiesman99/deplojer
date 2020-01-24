@@ -42,7 +42,6 @@ class RunCommand extends Command {
     _platform = argResults.rest.last;
     if (argResults.rest.isEmpty) {
       printUsage();
-      exit(0);
     } else if (argResults.rest.length > 1) {
       stderr.writeln(
           'Error: Please provide only one platform to run the script on.');
