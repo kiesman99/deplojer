@@ -45,7 +45,8 @@ platforms:
 
   tearDown(() {
     // Delete old dirs
-    Directory('platforms/').deleteSync(recursive: true);
+    var platformDir = Directory('platforms/');
+    if(platformDir.existsSync()) platformDir.deleteSync(recursive: true);
   });
 
   test('test basic reading of configuration', () {
