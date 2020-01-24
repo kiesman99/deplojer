@@ -8,9 +8,13 @@ extension S on String {
     return tmp;
   }
 
-  void printBox({String prefix = ''}) {
-    print('-'.replicate(prefix.length + length + 4));
-    print('| $prefix$this |');
-    print('-'.replicate(prefix.length + length + 4));
+  String toBox({String prefix = ''}) {
+    var tmp = '';
+    tmp += '-'.replicate(prefix.length + length + 4) + '\n';
+    tmp += '| $prefix$this |\n';
+    tmp +='-'.replicate(prefix.length + length + 4) + '\n';
+    return tmp;
   }
+
+  void printBox({String prefix = ''}) => print(toBox(prefix: prefix));
 }
