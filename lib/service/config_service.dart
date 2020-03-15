@@ -15,8 +15,24 @@ class ConfigService {
     YamlMap yaml = loadYaml(confFile.readAsStringSync());
     // check if yaml is not empty
     if(yaml != null && yaml.isNotEmpty){
-      yaml['platforms'].forEach((key, value) {
-        _configurations.putIfAbsent(key.toString(), () => PlatformConfig(value, key.toString()));
+      yaml['platforms']?.forEach((key, value) {
+
+        var customPaths = HashMap<String, String>();
+
+        if(value['custom_paths'] != null) {
+          value['custom_paths'].forEach((m) {
+            (m as YamlMap).forEach((key, value) {
+              customPaths.putIfAbsent(key, () => value);
+            });
+          });
+        }
+
+        _configurations.putIfAbsent(key.toString(), () => PlatformConfig(
+          platformName: key.toString(),
+          includeMasterFiles: value['include_master_files'] ?? true,
+          excludedFiles: (value['excluded'] as YamlList)?.toList() ?? const [],
+          customPaths: customPaths
+        ));
       });
     }
   }
@@ -31,7 +47,7 @@ class ConfigService {
   PlatformConfig configuration(String platform) {
     if(_configurations[platform] == null){
       // return empty configuration, because there is no config yet
-      return PlatformConfig.empty(platform);
+      return PlatformConfig();
     }
 
     return _configurations[platform];

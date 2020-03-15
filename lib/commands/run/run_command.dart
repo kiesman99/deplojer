@@ -22,8 +22,6 @@ class RunCommand extends Command<String> {
 
   RunCommand() {
     argParser
-      ..addFlag('files',
-          negatable: true, defaultsTo: true, help: 'Disable linking of files.')
       ..addOption('homePath',
           abbr: 'p',
           defaultsTo: env['HOME'],
@@ -42,42 +40,39 @@ class RunCommand extends Command<String> {
     if (_isPlatformAvailable(argResults.rest.last)) {
       // set variables given by args
       _homeDir = argResults['homePath'];
-
-      _checkSelectedPlatform();
       _linkFiles();
 
       return 'Deploying finished'.toBox();
     }
+
     return 'Error: The platform ${argResults.rest.last} is not available.';
   }
 
-  /// This function will check if the selected platform is available
-  void _checkSelectedPlatform() {}
-
   void _linkFiles() {
+    // this is the directory all files for deployment will be gathered
     var outDir = Directory('platforms/$_platform/out');
-    outDir.createSync();
     // clear out folder
     stdout.writeln('Clear "out" folder of $_platform');
-    outDir.deleteSync(recursive: true);
+    // if outdir existed already delete it
+    if(outDir.existsSync()) {
+      outDir.deleteSync(recursive: true);
+    }
     outDir.createSync();
 
-    if (argResults['files']) {
-      stdout.writeln('Files will be linked...');
-    }
+    stdout.writeln('Files will be linked...');
     var configFile = File('platforms/config.yaml');
     // create file if not existent
     configFile.createSync();
 
     var configService = ConfigService();
 
-    // link master platform files
-    _setup_master_files(configService.configuration(_platform), outDir);
-
-    // link platform files
+    // copy platform files to out folder
     _setup_platform_files(configService.configuration(_platform), outDir);
 
-    _link_files();
+    // link master platform files
+    //_setup_master_files(configService.configuration(_platform), outDir);
+
+    //_link_files();
   }
 
   /// This function will link all files, that are in the platforms
@@ -114,7 +109,6 @@ class RunCommand extends Command<String> {
     // Link each file that is located in the platforms out-dir
     // everything should now be available from the json file that was
     // previsouly created/updated
-    // TODO(jvietz): Implement actual linking of the files
     outDir.listSync().forEach((item) {
       if (FileSystemEntity.isFileSync(item.absolute.path)) {
         var itemname = basename(item.path);
@@ -129,7 +123,7 @@ class RunCommand extends Command<String> {
 
   String _getPathFromFile(String name) {
     var configuration = ConfigService().configuration(_platform);
-    return Directory(configuration.customPath[name] ?? _homeDir).absolute.path;
+    return Directory(configuration.customPaths[name] ?? _homeDir).absolute.path;
   }
 
   /// This function will merge the gap_filler into the given files
@@ -144,12 +138,13 @@ class RunCommand extends Command<String> {
     masterFilesDir.listSync().forEach((element) {
       // check if file is in excluded list
       // if not it should be included
-      if (!config.excluded_files.contains(element.toString())) {
+      if (!config.excludedFiles.contains(element.toString())) {
         // search for the files gap_filler folder
         // There are gap fillers for the requested element
         if (Directory('${gap_filler_dir.absolute.path}/${basename(element.path)}')
             .existsSync()) {
           // TODO(jvietz): Fill file with gap_fillers
+          // Search for @{gap_filler_name}
         }
         // There are no gap_fillers for the requested element
         // Copy ready file into output dir
@@ -166,11 +161,9 @@ class RunCommand extends Command<String> {
   /// This function will make a copy of each platform file
   /// into the [outDir]
   void _setup_platform_files(PlatformConfig configuration, Directory outDir) {
-    var files_platform = Directory('platforms/$_platform/files').listSync();
     stdout.writeln('Link files from ${_platform}...');
-    files_platform.forEach((FileSystemEntity e) {
+    Directory('platforms/$_platform/files').listSync().forEach((FileSystemEntity e) {
       if (FileSystemEntity.isFileSync(e.absolute.path)) {
-        if (FileSystemEntity.isFileSync(e.absolute.path))
           (e as File).copySync('${outDir.absolute.path}/${basename(e.path)}');
       }
     });
