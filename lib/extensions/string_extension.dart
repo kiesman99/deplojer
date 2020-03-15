@@ -15,6 +15,4 @@ extension S on String {
     tmp +='-'.replicate(prefix.length + length + 4) + '\n';
     return tmp;
   }
-
-  void printBox({String prefix = ''}) => print(toBox(prefix: prefix));
 }
