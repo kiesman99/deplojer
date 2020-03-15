@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:args/command_runner.dart';
 import 'package:cli/commands/add/add_service.dart';
 
@@ -13,7 +10,7 @@ class AddCommand extends Command<String> {
   String get name => 'add';
 
   @override
-  String get invocation => 'deplojer add <platform_name>';
+  String get invocation => 'deplojer add <platform_names>';
 
   final AddService _addService = AddService();
 

@@ -15,18 +15,13 @@ class RunCommand extends Command<String> {
 
   @override
   String get description =>
-      'Start deploying all your files and optionally scripts.';
+      'Start deploying all your files.';
 
   @override
   String get name => 'run';
 
   RunCommand() {
     argParser
-      ..addFlag('scripts',
-          abbr: 's',
-          negatable: false,
-          defaultsTo: false,
-          help: 'Enable script execution for the run.')
       ..addFlag('files',
           negatable: true, defaultsTo: true, help: 'Disable linking of files.')
       ..addOption('homePath',
@@ -50,7 +45,6 @@ class RunCommand extends Command<String> {
 
       _checkSelectedPlatform();
       _linkFiles();
-      _execScripts();
 
       return 'Deploying finished'.toBox();
     }
@@ -180,13 +174,6 @@ class RunCommand extends Command<String> {
           (e as File).copySync('${outDir.absolute.path}/${basename(e.path)}');
       }
     });
-  }
-
-  void _execScripts() {
-    if (argResults['scripts']) {
-      stdout.writeln('Scripts will be executed...');
-      // TODO(jvietz): Implement execution of scripts in the scripts folder
-    }
   }
 
   /// This function will return all available platforms
