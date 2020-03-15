@@ -1,27 +1,8 @@
 platforms:
-        win: 
-                include_master_files: false
-                include_master_scripts: false
-                excluded:
-                        files:
-                                - folders:
-                                        - 'blubber'
-                                - 'compton'
-                                - 'alacritty'
-        linux: 
-                custom_path:
-                        - 'alacritty': '~/.config/alacritty'
-                        - 'init.vim': '~/.config/nvim'
-        mac:
-                excluded:
-                        files:
-                                - folders:
-                                        - 'vimrc'
-                                        - 'neovim'
-                                - 'linux_conf'
-                                - 'linuc_compton'
-                        scripts:
-                                - 'setup_linux.sh'
-                custom_path:
-                        - 'hot_corners.conf': '~/.hot_corners'
-
+  win:
+    include_master_files: true
+    excluded:
+      - 'compton.ini'
+      - 'alacritty.yaml'
+    custom_paths:
+      - 'powershell.ps1': 'C:\Users\$USER\test'
