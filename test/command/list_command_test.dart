@@ -36,10 +36,10 @@ void main() {
 '''
 mac
 linux
-PopOs!
 windows
+PopOs!
 '''));
-  }, skip: true);
+  });
 
 
 }

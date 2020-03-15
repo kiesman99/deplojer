@@ -13,8 +13,6 @@ class PlatformConfig extends Equatable{
     _setExecutionOfMasterFiles();
     _setExecutionOfMasterScripts();
     _setCustomPathFiles();
-
-    // platform_name.printBox(prefix: 'PLATFORM: ');
   }
 
   // returns a platformconfig, that is empty

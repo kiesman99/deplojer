@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:cli/extensions/FileSystemEntityExtension.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli/extensions/string_extension.dart';
+import 'package:path/path.dart';
 
 class ListCommand extends Command<String> {
   @override
@@ -23,12 +23,12 @@ class ListCommand extends Command<String> {
       return 'Error: No platforms are available.';
     }
 
-    'Available Platforms'.printBox();
+    print('Available Platforms'.toBox());
     var platforms = '';
 
     platformDir.listSync(recursive: false, followLinks: false).toList()
-      .where((e) => e.isDir)
-      .map((e) => e.name)
+      .where((e) => FileSystemEntity.isDirectorySync(e.absolute.path))
+      .map((e) => basename(e.path))
       .forEach((e) => platforms += '$e\n');
 
     return platforms;

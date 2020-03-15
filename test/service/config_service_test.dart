@@ -37,7 +37,7 @@ platforms:
     custom_path:
       - 'hot_corners.conf': '~/.hot_corners'
 """;
-    var configFile = File('platforms/config.yaml')
+    var configFile = File('platforms/custom_config.yaml')
       ..createSync(recursive: true)
       ..writeAsStringSync(configString);
     configService = ConfigService(configFile: configFile);
@@ -163,5 +163,44 @@ platforms:
       var ex_scripts = configService.configuration('blubber').excluded_files;
       expect(ex_scripts, <String>[]);
     });
+  });
+
+  test('test with default config', () {
+    var config = 
+'''
+platforms:
+  win:
+    include_master_files: false
+    include_master_scripts: false
+    excluded:
+      files:
+        - 'blubber'
+        - 'compton'
+        - 'alacritty'
+  linux:
+    include_master_files: false
+    include_master_scripts: false
+    excluded:
+      files:
+        - 'blubber'
+        - 'compton'
+        - 'alacritty'
+  fancy:
+    include_master_files: false
+    include_master_scripts: false
+    excluded:
+      files:
+        - 'blubber'
+        - 'compton'
+        - 'alacritty'
+''';
+    var file = File('platforms/config.yaml')
+      ..createSync(recursive: true)
+      ..writeAsStringSync(config);
+  
+    var service = ConfigService();
+
+    expect(service.configuration('fancy').platform_name, 'fancy');
+    file.deleteSync();
   });
 }

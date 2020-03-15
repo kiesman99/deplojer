@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:cli/extensions/FileSystemEntityExtension.dart';
 import 'package:cli/extensions/string_extension.dart';
 import 'package:cli/model/config/platform_config.dart';
 import 'package:cli/service/config_service.dart';
+import 'package:path/path.dart';
 
 class RunCommand extends Command<String> {
   final env = Platform.environment;
@@ -109,8 +109,9 @@ class RunCommand extends Command<String> {
     var outDir = Directory('platforms/$_platform/out');
     var jsonList = <Map<String, String>>[];
     outDir.listSync().forEach((item) {
-      if ((item as File).myIsFile) {
-        jsonList.add({'name': item.name, 'path': _getPathFromFile(item.name)});
+      if (FileSystemEntity.isFileSync(item.absolute.path)) {
+        var itemname = basename(item.path);
+        jsonList.add({'name': itemname, 'path': _getPathFromFile(itemname)});
       }
     });
     var json = jsonEncode(jsonList);
@@ -121,10 +122,11 @@ class RunCommand extends Command<String> {
     // previsouly created/updated
     // TODO(jvietz): Implement actual linking of the files
     outDir.listSync().forEach((item) {
-      if (item.myIsFile) {
-        var path = _getPathFromFile(item.name);
-        var from = '${outDir.absolute.path}${item.name}';
-        var to = '$path${item.name}';
+      if (FileSystemEntity.isFileSync(item.absolute.path)) {
+        var itemname = basename(item.path);
+        var path = _getPathFromFile(basename(itemname));
+        var from = '${outDir.absolute.path}${itemname}';
+        var to = '$path${itemname}';
         Link(to).createSync(from, recursive: true);
         print('Creating link\nFrom:$from\nto:$to\n------\n\n');
       }
@@ -151,16 +153,17 @@ class RunCommand extends Command<String> {
       if (!config.excluded_files.contains(element.toString())) {
         // search for the files gap_filler folder
         // There are gap fillers for the requested element
-        if (Directory('${gap_filler_dir.absolute.path}/${element.name}')
+        if (Directory('${gap_filler_dir.absolute.path}/${basename(element.path)}')
             .existsSync()) {
           // TODO(jvietz): Fill file with gap_fillers
         }
         // There are no gap_fillers for the requested element
         // Copy ready file into output dir
         else {
-          if (element.myIsFile)
+          if (FileSystemEntity.isFileSync(element.absolute.path)) {
             (element as File)
-                .copySync('${outDir.absolute.path}/${element.name}');
+                .copySync('${outDir.absolute.path}/${basename(element.path)}');
+          }
         }
       }
     });
@@ -173,8 +176,8 @@ class RunCommand extends Command<String> {
     stdout.writeln('Link files from ${_platform}...');
     files_platform.forEach((FileSystemEntity e) {
       if (FileSystemEntity.isFileSync(e.absolute.path)) {
-        if (e.myIsFile)
-          (e as File).copySync('${outDir.absolute.path}/${e.name}');
+        if (FileSystemEntity.isFileSync(e.absolute.path))
+          (e as File).copySync('${outDir.absolute.path}/${basename(e.path)}');
       }
     });
   }
@@ -198,7 +201,7 @@ class RunCommand extends Command<String> {
     }
     return platformDir
         .listSync()
-        .map((FileSystemEntity entity) => entity.name)
+        .map((FileSystemEntity entity) => basename(entity.path))
         .toList();
   }
 
