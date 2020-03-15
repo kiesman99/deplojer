@@ -133,6 +133,49 @@ platforms:
     });
 
   });
+
+  test('loading non existent platform', () {
+    when(configFile.readAsStringSync()).thenReturn('');
+    configService = ConfigService(configFile: configFile);
+    var config = configService.configuration('blubber');
+    expect(config, isNot(null));
+    expect(config.includeMasterFiles, true);
+    expect(config.excludedFiles, const []);
+    expect(config.customPaths, const {});
+  });
+
+  test('loading platform config from default path', () {
+    var plDir = Directory('platforms')..createSync(recursive: true);
+    var confFile = File('${plDir.absolute.path}/config.yaml')
+    ..createSync(recursive: true)
+    ..writeAsStringSync(
+'''
+platforms:
+  win:
+    include_master_files: true
+  mac:
+    blubber: true
+  linux:
+    include_master_files: false
+'''
+    );
+
+    configService = ConfigService();
+    var winConfig = configService.configuration('win');
+    var macConfig = configService.configuration('mac');
+    var linuxConfig = configService.configuration('linux');
+
+    expect(winConfig, isNot(null));
+    expect(macConfig, isNot(null));
+    expect(linuxConfig, isNot(null));
+
+    expect(winConfig.includeMasterFiles, true);
+    expect(macConfig.includeMasterFiles, true);
+    expect(linuxConfig.includeMasterFiles, false);
+
+    confFile.deleteSync(recursive: true);
+  });
+
 }
 
 class FileMock extends Mock implements File {}
